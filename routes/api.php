@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +17,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+//Route::get('books/{id}/review', [BookController::class, 'review']);
+//Route::resource('/books', BookController::class);
+
+Route::controller(BookController::class)->group(function () {
+    Route::get('/books', 'index');
+    Route::get('/books/{id}', 'show');
+    Route::get('/books/{id}/review', 'review');
+    Route::get('/test', 'testQuery');
 });
