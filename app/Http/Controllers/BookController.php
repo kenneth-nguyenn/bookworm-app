@@ -97,6 +97,14 @@ class BookController extends Controller
         return response($this->bookRepositories->getTop8BooksMostRating());
     }
 
+    public function recommend(Request $request){
+        return response($this->bookRepositories->getTop8BooksMostRating());
+    }
+
+    public function popular(Request $request){
+        return response($this->bookRepositories->getTop8BooksMostRating());
+    }
+
     /**
      * Remove the specified resource from storage.
      *
