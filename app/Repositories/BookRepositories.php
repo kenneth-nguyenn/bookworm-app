@@ -4,20 +4,22 @@ namespace App\Repositories;
 
 use App\Models\Book;
 use App\Models\Discount;
-use App\Models\Review;
 use Illuminate\Support\Facades\DB;
 
 class BookRepositories extends BaseRepositories
 {
-    public function __contruct(){
+    public function __contruct()
+    {
         $this->query = Book::query();
     }
 
-    public function getAllBook(){
+    public function getAllBook()
+    {
         return Book::all();
     }
 
-    public function getBookByID($Id){
+    public function getBookByID($Id)
+    {
         return Book::query()->find($Id);
     }
 
@@ -31,14 +33,14 @@ class BookRepositories extends BaseRepositories
             ->get();
     }
 
-    public function getTop10BooksDiscount(){
+    public function getTop10BooksDiscount()
+    {
         return Book::query()
             ->join('discount',
                 'book.id',
                 '=',
                 'discount.book_id')
-            ->where( function ($query)
-            {
+            ->where(function ($query) {
                 $query->whereDate('discount_end_date', '>=', today())
                     ->orWhereNull('discount_end_date');
             })
@@ -50,24 +52,31 @@ class BookRepositories extends BaseRepositories
             ->get();
     }
 
-    public function getTop8BooksMostRating(){
-        return Book::query()
-            ->join('review',
-                'review.book_id',
+    public function getTop8BooksMostRating()
+    {
+        return Book::query()->fromSub(function ($query){
+            $query->from('review')
+                ->select('review.book_id',
+                    DB::raw('round(AVG(rating_start),1) as avg_rating'))
+                ->groupBy('review.book_id');
+        }, 'sub')
+            ->join('book',
+                'sub.book_id',
+                '=',
+                'id')
+            ->leftJoin('discount',
+                'discount.book_id',
                 '=',
                 'book.id')
-            ->select('review.book_id',
-                DB::raw('round(AVG(rating_start),1) as avg_rating'))
-            ->groupBy('review.book_id')
+//            ->where(function ($query) {
+//                $query->where('discount_price', '>=', today())
+//                    ->orWhereNull('discount_end_date');
+//            })
+            //TODO: Thay bang "final_price"
             ->orderByDesc('avg_rating')
-//            ->join(
-//                'book',
-//                'book.id',
-//                '=',
-//                'review.book_id'
-//            )
-//            ->orderBy('book.price')
-            ->limit(8)
+//            ->orderBy('book_price')
+//            ->select('book_id', 'category_id', 'author_id', 'book_title', 'book_summary', 'book_price', 'book_cover_photo', 'avg_rating')
+//            ->limit(8)
             ->get();
     }
 
@@ -89,5 +98,9 @@ class BookRepositories extends BaseRepositories
     public function update($data)
     {
         // TODO: Implement update() method.
+    }
+
+    private function array_get($input, mixed $key)
+    {
     }
 }
