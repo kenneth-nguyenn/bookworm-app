@@ -24,6 +24,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::controller(BookController::class)->group(function () {
     Route::get('/books', 'index');
+    Route::get('/books/recommend', 'recommend');
+    Route::get('/books/popular', 'popular');
     Route::get('/books/{id}', 'show');
     Route::get('/books/{id}/review', 'review');
     Route::get('/test', 'testQuery');
