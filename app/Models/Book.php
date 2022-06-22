@@ -20,4 +20,12 @@ class Book extends Model
         return $this->hasMany(Discount::class, 'book_id', 'id');
     }
 
+    public function category(){
+        return $this->belongsTo(Category::class, 'id', 'category_id');
+    }
+
+    public function author(){
+        return $this->belongsTo(Book::class);
+    }
+
 }
