@@ -4,11 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Repositories\BookRepositories;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class BookController extends Controller
 {
     protected BookRepositories $bookRepositories;
+
     public function __construct(BookRepositories $bookRepositories)
     {
         $this->bookRepositories = $bookRepositories;
@@ -17,17 +21,29 @@ class BookController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index(Request $request)
     {
-        return response($this->bookRepositories->getAllBook());
+        if ($request->has('recommend')){
+            return response($this->bookRepositories->getTop8BooksMostRating());
+        }
+        elseif ($request->has('popular')){
+            return response($this->bookRepositories->getTop8BooksMostReview());
+        }
+        elseif ($request->has('id') && (bool)$request->input('review')){
+            return response($this->bookRepositories->getReviewBook($request->input('id')));
+        }
+        elseif ($request->has('id')){
+            return response($this->bookRepositories->getBookByID(request('id')));
+        }
+        else return response($this->bookRepositories->getAllBook());
     }
 
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create()
     {
@@ -37,8 +53,8 @@ class BookController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function store(Request $request)
     {
@@ -48,22 +64,19 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Book  $book
-     * @return \Illuminate\Http\Response
+     * @param Book $book
+     * @return Response
      */
     public function show(Request $request)
     {
-        $arr = explode("/", $request->url());
-        $id = end($arr);
-        // TODO: Check dieu kien
-        return response($this->bookRepositories->getBookByID($id));
+        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Book  $book
-     * @return \Illuminate\Http\Response
+     * @param Book $book
+     * @return Response
      */
     public function edit(Book $book)
     {
@@ -73,43 +86,37 @@ class BookController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Book  $book
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param Book $book
+     * @return Response
      */
     public function update(Request $request, Book $book)
     {
         //
     }
 
-    public function review(Request $request)
-    {
-        $arr = explode("/", $request->url());
-        $id = array_slice($arr,-2, 1);
-        return response($this->bookRepositories->getReviewBook($id));
-    }
-
     /**
      * For test API
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     * @return Application|ResponseFactory|Response
      */
-    public function testQuery(){
+    public function testQuery()
+    {
         return response($this->bookRepositories->getTop8BooksMostRating());
     }
 
-    public function recommend(Request $request){
-        return response($this->bookRepositories->getTop8BooksMostRating());
-    }
-
-    public function popular(Request $request){
-        return response($this->bookRepositories->getTop8BooksMostRating());
+    public function sort(Request $request)
+    {
+        //TODO: Kiem tra sortby:OnSale/Popularity/Price
+//        return response($this->bookRepositories->getSortByOnSale());
+//        return response($this->bookRepositories->getSortByPopularity());
+        return response($this->bookRepositories->getSortByPrice());
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Book  $book
-     * @return \Illuminate\Http\Response
+     * @param Book $book
+     * @return Response
      */
     public function destroy(Book $book)
     {
