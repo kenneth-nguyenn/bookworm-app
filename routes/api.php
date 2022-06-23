@@ -19,14 +19,13 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-//Route::get('books/{id}/review', [BookController::class, 'review']);
-//Route::resource('/books', BookController::class);
-
+// Home page features
 Route::controller(BookController::class)->group(function () {
     Route::get('/books', 'index');
-    Route::get('/books/recommend', 'recommend');
-    Route::get('/books/popular', 'popular');
-    Route::get('/books/{id}', 'show');
-    Route::get('/books/{id}/review', 'review');
     Route::get('/test', 'testQuery');
+});
+
+// Shop page features
+Route::group(['prefix' => '/shops' ], function(){
+    Route::get('/', [BookController::class, 'sort'])->name('sort');
 });
