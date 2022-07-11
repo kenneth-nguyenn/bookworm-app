@@ -4,18 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Repositories\BookRepositories;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class BookController extends Controller
 {
     protected BookRepositories $bookRepositories;
+    protected $query;
 
     public function __construct(BookRepositories $bookRepositories)
     {
         $this->bookRepositories = $bookRepositories;
+        $this->query = Book::query();
     }
 
     /**
@@ -25,19 +25,53 @@ class BookController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->has('recommend')){
-            return response($this->bookRepositories->getTop8BooksMostRating());
+        //http://localhost:8000/books?category=ABC&author=1&rating=1&sortBy=onsale&show=20
+        $result = $this->query;
+
+        // Set perPage
+        if ($request->has('show')) {
+            $this->bookRepositories->setPerPage($request);
         }
-        elseif ($request->has('popular')){
-            return response($this->bookRepositories->getTop8BooksMostReview());
+
+        // Recommend
+        if ($request->has('recommend')) {
+            return response($this->bookRepositories
+                ->getTop8BooksMostRating()
+                ->get());
+//            return response(Book::getFinalPrice()->get());
         }
-        elseif ($request->has('id') && (bool)$request->input('review')){
-            return response($this->bookRepositories->getReviewBook($request->input('id')));
+
+        if ($request->has('onsales')) {
+//            return response($this->bookRepositories
+//                ->getTop8BooksMostRating()
+//                ->get());
+            return response($this->bookRepositories->getTop10BooksDiscount()->get());
         }
-        elseif ($request->has('id')){
-            return response($this->bookRepositories->getBookByID(request('id')));
+
+        // Popular
+        if ($request->has('popular')) {
+            return response($this->bookRepositories
+                ->getTop8BooksMostReview()
+                ->get());
+//            return response($this->bookRepositories->getMostReview()->getFinalPrice()->limit(8)->get());
         }
-        else return response($this->bookRepositories->getAllBook());
+
+        // Filter & Sort
+        $result = $this->bookRepositories->getFilterAndSort($request);
+        return response($result);
+    }
+
+    // List Book
+    public function listBook($Id)
+    {
+        $result = Book::getBookById($Id);
+
+        if (request()->filled('review')) {
+            $result->Review::getReviewById($Id);
+        }
+
+        return response($result->get());
+//            ->paginate($this->perPage)->withQueryString());
     }
 
     /**
@@ -93,23 +127,6 @@ class BookController extends Controller
     public function update(Request $request, Book $book)
     {
         //
-    }
-
-    /**
-     * For test API
-     * @return Application|ResponseFactory|Response
-     */
-    public function testQuery()
-    {
-        return response($this->bookRepositories->getTop8BooksMostRating());
-    }
-
-    public function sort(Request $request)
-    {
-        //TODO: Kiem tra sortby:OnSale/Popularity/Price
-//        return response($this->bookRepositories->getSortByOnSale());
-//        return response($this->bookRepositories->getSortByPopularity());
-        return response($this->bookRepositories->getSortByPrice());
     }
 
     /**
