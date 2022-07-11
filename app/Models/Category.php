@@ -13,7 +13,13 @@ class Category extends Model
 
     protected $table = 'category';
 
-    public function book(){
+    public function book()
+    {
         return $this->hasMany(Book::class, 'category_id', 'id');
+    }
+
+    public function scopeGetNameCategory($query)
+    {
+        return $query->select('category_name');
     }
 }
