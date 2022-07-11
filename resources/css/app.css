@@ -9,7 +9,9 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgb(247, 250, 252);
+    /*background: rgb(247, 250, 252);*/
+    /*background: rgb(200, 200, 200);*/
+    background: rgb(255, 255, 255);
 }
 
 .welcome-text {
@@ -33,3 +35,24 @@ main {
     margin-left: 6px;
     margin-bottom: 1px;
 }
+
+.card {
+    margin-bottom: 3rem;
+    background-color: rgb(247, 247, 247);
+    height: 100%;
+}
+
+.card-title {
+    font-weight: bold;
+    overflow: hidden;
+    height: 3rem;
+    flex-grow: 1;
+}
+
+.slick-prev:before,
+.slick-next:before {
+    color: rgb(20, 20, 20);
+}
+
+
+

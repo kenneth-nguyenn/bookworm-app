@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +17,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+// Home page features
+Route::controller(BookController::class)->group(function () {
+    Route::get('/books', 'index');
+});
+
+// Shop page features
+Route::controller(BookController::class)->group(function () {
+    Route::get('/books/{id}', 'listBook');
 });
