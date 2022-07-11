@@ -22,10 +22,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 // Home page features
 Route::controller(BookController::class)->group(function () {
     Route::get('/books', 'index');
-    Route::get('/test', 'testQuery');
 });
 
 // Shop page features
-Route::group(['prefix' => '/shops' ], function(){
-    Route::get('/', [BookController::class, 'sort'])->name('sort');
+Route::controller(BookController::class)->group(function () {
+    Route::get('/books/{id}', 'listBook');
 });
